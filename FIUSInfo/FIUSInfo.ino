@@ -1,4 +1,14 @@
+#include <FastLED.h>
 #include <WiFi.h>
+
+
+#define LED_WIDTH 0
+#define LED_HEIGTH 0
+#define NUM_LEDS LED_WIDTH*LED_HEIGTH
+//Messing around with DATA_PIN can cause compile problems due library name collision
+#define DATA_PIN 4
+
+CRGB leds[NUM_LEDS];
 
 char ssid[] = "yourNetwork";      // your network SSID (name)
 char pass[] = "secretPassword";   // your network password
@@ -9,7 +19,20 @@ int status = WL_IDLE_STATUS;
 WiFiServer server(80);
 
 void setup() {
-  // attempt to connect to Wifi network:
+  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
+  
+  setupWlan();
+
+}
+
+void loop() {
+  // listen for incoming clients
+  refreshPage();
+  refreshLED();
+}
+
+void setupWlan(){
+   // attempt to connect to Wifi network:
   while (status != WL_CONNECTED) {
     Serial.print("Attempting to connect to SSID: ");
     Serial.println(ssid);
@@ -20,16 +43,7 @@ void setup() {
     delay(5000);
   }
   server.begin();
-
 }
-
-
-void loop() {
-  // listen for incoming clients
-  refreshPage();
-  refreshLED();
-}
-
 
 void refreshPage(){
    WiFiClient client = server.available();
