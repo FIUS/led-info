@@ -11,8 +11,7 @@ const int DATA_PIN = 4;
 
 CRGB leds[NUM_LEDS];
 
-char ssid[] = "yourNetwork";      // your network SSID (name)
-char pass[] = "secretPassword";   // your network password
+
 
 int status = WL_IDLE_STATUS;
 
@@ -51,7 +50,8 @@ void setupWlan() {
   server.begin();
 }
 
-void refreshPage() {
+String refreshPage() {
+  String output = null;
   WiFiClient client = server.available();
   bool check = false;
   if (client) {
@@ -64,7 +64,7 @@ void refreshPage() {
         char c = client.read();
         parsingString += c;
         int startIndex = parsingString.indexOf("GET");
-      //  Serial.print(c);
+        //  Serial.print(c);
         if (parsingString.lastIndexOf("HTTP/1.1") != -1 && !check) {
           check = true;
 
@@ -72,7 +72,7 @@ void refreshPage() {
           parsingString = parsingString.substring(startIndex, endIndex);
           parsingString = parsingString.substring(5, parsingString.length() - 1);
           if (parsingString.indexOf("favicon.ico") == -1) {
-            reactOnHTTPCall(parsingString);
+            output = parsingString;
           }
 
         }
@@ -107,8 +107,9 @@ void refreshPage() {
     delay(1);
     // close the connection:
     client.stop();
-
+    
   }
+  return output;
 }
 
 void reactOnHTTPCall(String message) {
