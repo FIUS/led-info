@@ -59,20 +59,23 @@ void refreshPage() {
 
     // an http request ends with a blank line
     bool currentLineIsBlank = true;
+    String httpResponse = "HTTP/1.1 405 METHOD NOT ALLOWED";
     while (client.connected()) {
       if (client.available()) {
         char c = client.read();
         parsingString += c;
-        int startIndex = parsingString.indexOf("GET");
-      //  Serial.print(c);
+        int startIndex = parsingString.indexOf("POST");
+        //  Serial.print(c);
+        
         if (parsingString.lastIndexOf("HTTP/1.1") != -1 && !check) {
           check = true;
 
           int endIndex = parsingString.lastIndexOf("HTTP/1.1");
           parsingString = parsingString.substring(startIndex, endIndex);
-          parsingString = parsingString.substring(5, parsingString.length() - 1);
+          parsingString = parsingString.substring(7, parsingString.length() - 1);
           if (parsingString.indexOf("favicon.ico") == -1) {
-            reactOnHTTPCall(parsingString);
+            httpResponse = reactOnHTTPCall(parsingString);
+            
           }
 
         }
@@ -81,7 +84,8 @@ void refreshPage() {
         // so you can send a reply
         if (c == '\n' && currentLineIsBlank) {
           // send a standard http response header
-          client.println("HTTP/1.1 200 OK");
+         
+          client.println(httpResponse);
           client.println("Content-Type: text/html");
           client.println("Connection: close");  // the connection will be closed after completion of the response
           client.println();
@@ -111,8 +115,37 @@ void refreshPage() {
   }
 }
 
-void reactOnHTTPCall(String message) {
-  Serial.println(message);
+String reactOnHTTPCall(String message) {
+  String temp = "";
+  String output = "HTTP/1.1 200 OK";
+  if (message.indexOf("text") != -1) {
+    temp = message.substring(5);
+    Serial.println(temp);
+  } else  if (message.indexOf("color") != -1) {
+    temp = message.substring(6);
+    Serial.println(temp);
+  } else  if (message.indexOf("speed") != -1) {
+    temp = message.substring(6);
+    Serial.println(temp);
+  }  else if (message.indexOf("on") != -1) {
+    temp = message.substring(3);
+    Serial.println(temp);
+  } else  if (message.indexOf("animationType") != -1) {
+    temp = message.substring(13);
+    Serial.println(temp);
+  } else if (message.indexOf("showImage") != -1) {
+    temp = message.substring(9);
+    Serial.println(temp);
+  } else if (message.indexOf("showImageColor") != -1) {
+    temp = message.substring(14);
+    Serial.println(temp);
+  } else if (message.indexOf("get") != -1) {
+    temp = message.substring(3);
+    Serial.println(temp);
+  } else {
+    output = "HTTP/1.1 404 NO ENDPOINT";
+  }
+  return output;
 }
 
 void refreshLED() {
