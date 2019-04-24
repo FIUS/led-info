@@ -26,7 +26,7 @@ WiFiServer server(80);
 
 //Status variables
 bool isActive = true;
-String text = "AB";
+String text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 CRGB color = CRGB::Green;
 int animationType = 0;
 double textSpeed = 10;
