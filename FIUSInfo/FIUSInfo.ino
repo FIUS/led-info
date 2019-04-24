@@ -8,7 +8,8 @@ struct HttpResponse {
 
 const int LED_WIDTH = 32;
 const int LED_HEIGTH = 8;
-const int NUM_LEDS = LED_WIDTH * LED_HEIGTH;
+const int FONT_WIDTH = 5;
+const int NUM_LEDS = LED_WIDTH * LED_HEIGTH+FONT_WIDTH*LED_HEIGTH;
 const int ENDPOINT_COUNT = 8;
 
 //Messing around with DATA_PIN can cause compile problems due library name collision
@@ -194,6 +195,4 @@ HttpResponse reactOnHTTPCall(String message) {
 
 }
 
-void refreshLED() {
 
-}
