@@ -32,15 +32,14 @@ void refreshLED() {
         }
       } else {
         for (int j = 0; j < LED_HEIGTH; j++) {
-          leds[firstIndexOfCollumn - ((LED_HEIGTH*2-1) - 2 * j)] = leds[firstIndexOfCollumn + j];
+          leds[firstIndexOfCollumn - ((LED_HEIGTH * 2 - 1) - 2 * j)] = leds[firstIndexOfCollumn + j];
         }
       }
     }
+    insertChar();
+    FastLED.show();
+
   }
-
-
-  insertChar();
-  FastLED.show();
 
 }
 
@@ -64,7 +63,7 @@ void insertChar() {
     lastChar = FONT_WIDTH;
     char nextChar = textToDisplay.charAt(0);
     textToDisplay = textToDisplay.substring(1);
-    
+
     for (int i = 0; i < FONT_WIDTH * LED_HEIGTH; i++) {
       if (font[1][i]) {
         leds[startIndex + i] = color;
