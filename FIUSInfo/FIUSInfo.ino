@@ -10,7 +10,7 @@ const int LED_WIDTH = 64;
 const int LED_HEIGTH = 8;
 const int FONT_WIDTH = 5;
 const int NUM_LEDS = LED_WIDTH * LED_HEIGTH+FONT_WIDTH*LED_HEIGTH;
-const int ENDPOINT_COUNT = 8;
+const int ENDPOINT_COUNT = 9;
 
 //Messing around with DATA_PIN can cause compile problems due library name collision
 const int DATA_PIN = 4;
@@ -27,9 +27,10 @@ WiFiServer server(80);
 //Status variables
 bool isActive = true;
 String text = "555";
-CRGB color = CRGB::White;
+CRGB color = CRGB::Green;
 int animationType = 0;
 double textSpeed = 5;
+int emptyTicks=20;
 //End variables
 
 
@@ -42,6 +43,7 @@ void setup() {
   endpoints[5] = "showImage";
   endpoints[6] = "showImageColor";
   endpoints[7] = "get";
+  endpoints[8] = "emptyTicks";
 
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
   Serial.begin(9600);
@@ -183,6 +185,8 @@ HttpResponse reactOnHTTPCall(String message) {
 
     html = "{\"text\":\"" + text + "\",\"speed\":" + textSpeed + ",\"isActive\":" +
            isActive + ",\"animationType\":" + animationType + ",\"color\":\"" + colorOUT + "\"}";
+  }else if (match == 8) {
+    emptyTicks=temp.toInt();
   }
   if (match == -1) {
     output = "HTTP/1.1 404 NO ENDPOINT";
