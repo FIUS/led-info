@@ -1,4 +1,4 @@
-  /*const int LED_WIDTH = 32;
+/*const int LED_WIDTH = 32;
   const int LED_HEIGTH = 8;
   const int FONT_WIDTH = 5;
   const int NUM_LEDS = LED_WIDTH * LED_HEIGTH + FONT_WIDTH * LED_HEIGTH;
@@ -23,12 +23,24 @@ void refreshLED() {
     //Perform refresh
     lastRefresh = millis();
 
-    for (int i = LED_HEIGTH; i < NUM_LEDS; i++) {
-      leds[i - LED_HEIGTH] = leds[i];
+    for (int i = 1; i < LED_WIDTH + FONT_WIDTH - 1; i++) {
+      int firstIndexOfCollumn = i * LED_HEIGTH;
+      if (i % 2 == 0) {
+        for (int j = 0; j < LED_HEIGTH; j++) {
+          leds[firstIndexOfCollumn - (1 + 2 * j)] = leds[firstIndexOfCollumn + j];
+        }
+      } else {
+        for (int j = 0; j < LED_HEIGTH; j++) {
+          leds[firstIndexOfCollumn - ((LED_HEIGTH*2-1) - 2 * j)] = leds[firstIndexOfCollumn + j];
+        }
+      }
     }
-    insertChar();
-    FastLED.show();
   }
+
+
+  insertChar();
+  FastLED.show();
+
 }
 
 void insertChar() {
