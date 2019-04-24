@@ -1,16 +1,21 @@
 #include <FastLED.h>
 #include <WiFi.h>
 
+struct HttpResponse {
+  String httpCode;
+  String html;
+};
 
 const int LED_WIDTH = 32;
 const int LED_HEIGTH = 8;
 const int NUM_LEDS = LED_WIDTH * LED_HEIGTH;
+const int ENDPOINT_COUNT = 8;
 
 //Messing around with DATA_PIN can cause compile problems due library name collision
 const int DATA_PIN = 4;
 
 CRGB leds[NUM_LEDS];
-
+String endpoints[ENDPOINT_COUNT];
 char ssid[] = "yourNetwork";      // your network SSID (name)
 char pass[] = "secretPassword";   // your network password
 
@@ -18,7 +23,25 @@ int status = WL_IDLE_STATUS;
 
 WiFiServer server(80);
 
+//Status variables
+bool isActive = true;
+String text = "";
+CRGB color = CRGB::White;
+int animationType = 0;
+double textSpeed = 0;
+//End variables
+
+
 void setup() {
+  endpoints[0] = "text";
+  endpoints[1] = "color";
+  endpoints[2] = "speed";
+  endpoints[3] = "on";
+  endpoints[4] = "animationType";
+  endpoints[5] = "showImage";
+  endpoints[6] = "showImageColor";
+  endpoints[7] = "get";
+
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
   Serial.begin(9600);
   setupWlan();
@@ -54,28 +77,30 @@ void setupWlan() {
 void refreshPage() {
   WiFiClient client = server.available();
   bool check = false;
+  HttpResponse resp;
   if (client) {
     String parsingString = "";
 
     // an http request ends with a blank line
     bool currentLineIsBlank = true;
-    String httpResponse = "HTTP/1.1 405 METHOD NOT ALLOWED";
+    HttpResponse httpResponse;
+    httpResponse.httpCode = "HTTP/1.1 405 METHOD NOT ALLOWED";
     while (client.connected()) {
       if (client.available()) {
         char c = client.read();
         parsingString += c;
         int startIndex = parsingString.indexOf("POST");
         //  Serial.print(c);
-        
+
         if (parsingString.lastIndexOf("HTTP/1.1") != -1 && !check) {
           check = true;
 
           int endIndex = parsingString.lastIndexOf("HTTP/1.1");
           parsingString = parsingString.substring(startIndex, endIndex);
-          parsingString = parsingString.substring(7, parsingString.length() - 1);
+          parsingString = parsingString.substring(8, parsingString.length() - 1);
           if (parsingString.indexOf("favicon.ico") == -1) {
             httpResponse = reactOnHTTPCall(parsingString);
-            
+
           }
 
         }
@@ -84,18 +109,14 @@ void refreshPage() {
         // so you can send a reply
         if (c == '\n' && currentLineIsBlank) {
           // send a standard http response header
-         
-          client.println(httpResponse);
+
+          client.println(httpResponse.httpCode);
           client.println("Content-Type: text/html");
           client.println("Connection: close");  // the connection will be closed after completion of the response
           client.println();
 
-          client.println("<!DOCTYPE HTML>");
-          client.println("<html>");
+          client.println(httpResponse.html);
 
-          client.println("OK");
-
-          client.println("</html>");
           break;
         }
         if (c == '\n') {
@@ -115,37 +136,62 @@ void refreshPage() {
   }
 }
 
-String reactOnHTTPCall(String message) {
+HttpResponse reactOnHTTPCall(String message) {
   String temp = "";
   String output = "HTTP/1.1 200 OK";
-  if (message.indexOf("text") != -1) {
-    temp = message.substring(5);
-    Serial.println(temp);
-  } else  if (message.indexOf("color") != -1) {
-    temp = message.substring(6);
-    Serial.println(temp);
-  } else  if (message.indexOf("speed") != -1) {
-    temp = message.substring(6);
-    Serial.println(temp);
-  }  else if (message.indexOf("on") != -1) {
-    temp = message.substring(3);
-    Serial.println(temp);
-  } else  if (message.indexOf("animationType") != -1) {
-    temp = message.substring(13);
-    Serial.println(temp);
-  } else if (message.indexOf("showImage") != -1) {
-    temp = message.substring(9);
-    Serial.println(temp);
-  } else if (message.indexOf("showImageColor") != -1) {
-    temp = message.substring(14);
-    Serial.println(temp);
-  } else if (message.indexOf("get") != -1) {
-    temp = message.substring(3);
-    Serial.println(temp);
-  } else {
+  int match = -1;
+  String html = "";
+  for (int i = 0; i < ENDPOINT_COUNT; i++) {
+    if (message.indexOf(endpoints[i]) != -1) {
+      temp = message.substring(endpoints[i].length());
+      Serial.println(temp);
+      match = i;
+    }
+  }
+
+  if (match == 0) {
+    text = temp;
+  } else if (match == 1) {
+    int r = temp.substring(0, 3).toInt();
+    int g = temp.substring(3, 6).toInt();
+    int b = temp.substring(6, 9).toInt();
+
+    color = CRGB(r, g, b);
+
+  } else if (match == 2) {
+    textSpeed = temp.toDouble();
+  } else if (match == 3) {
+    if (temp == "true") {
+      isActive = true;
+    } else {
+      isActive = false;
+    }
+  } else if (match == 4) {
+    animationType = temp.toInt();
+  } else if (match == 5) {
+    //TODO
+  } else if (match == 6) {
+    //TODO
+  } else if (match == 7) {
+
+    int r = color.r;
+    int g = color.g;
+    int b = color.b;
+
+    String colorOUT = "RGB(" + String(r) + "," + String(g) + "," + String(b) + ")";
+
+    html = "{\"text\":\"" + text + "\",\"speed\":" + textSpeed + ",\"isActive\":" +
+           isActive + ",\"animationType\":" + animationType + ",\"color\":\"" + colorOUT + "\"}";
+  }
+  if (match == -1) {
     output = "HTTP/1.1 404 NO ENDPOINT";
   }
-  return output;
+  HttpResponse resp;
+  resp.httpCode = output;
+  resp.html = html;
+  Serial.println(text);
+  return resp;
+
 }
 
 void refreshLED() {
