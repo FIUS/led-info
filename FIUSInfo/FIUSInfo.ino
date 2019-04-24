@@ -6,7 +6,7 @@ struct HttpResponse {
   String html;
 };
 
-const int LED_WIDTH = 32;
+const int LED_WIDTH = 64;
 const int LED_HEIGTH = 8;
 const int FONT_WIDTH = 5;
 const int NUM_LEDS = LED_WIDTH * LED_HEIGTH+FONT_WIDTH*LED_HEIGTH;
@@ -26,10 +26,10 @@ WiFiServer server(80);
 
 //Status variables
 bool isActive = true;
-String text = "";
+String text = "555";
 CRGB color = CRGB::White;
 int animationType = 0;
-double textSpeed = 0;
+double textSpeed = 5;
 //End variables
 
 
@@ -46,13 +46,13 @@ void setup() {
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
   Serial.begin(9600);
   setupWlan();
-  leds[10] = CRGB::White; FastLED.show();
+  leds[100] = CRGB::White; FastLED.show();
 }
 
 void loop() {
   // listen for incoming clients
   refreshPage();
-  //refreshLED();
+  refreshLED();
 }
 
 void setupWlan() {
@@ -194,5 +194,3 @@ HttpResponse reactOnHTTPCall(String message) {
   return resp;
 
 }
-
-
