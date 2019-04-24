@@ -9,7 +9,7 @@ struct HttpResponse {
 const int LED_WIDTH = 64;
 const int LED_HEIGTH = 8;
 const int FONT_WIDTH = 5;
-const int NUM_LEDS = LED_WIDTH * LED_HEIGTH+FONT_WIDTH*LED_HEIGTH;
+const int NUM_LEDS = LED_WIDTH * LED_HEIGTH+FONT_WIDTH*LED_HEIGTH+LED_HEIGTH*2;
 const int ENDPOINT_COUNT = 9;
 
 //Messing around with DATA_PIN can cause compile problems due library name collision
@@ -26,10 +26,10 @@ WiFiServer server(80);
 
 //Status variables
 bool isActive = true;
-String text = "555";
+String text = "AB";
 CRGB color = CRGB::Green;
 int animationType = 0;
-double textSpeed = 5;
+double textSpeed = 10;
 int emptyTicks=20;
 //End variables
 
@@ -44,7 +44,7 @@ void setup() {
   endpoints[6] = "showImageColor";
   endpoints[7] = "get";
   endpoints[8] = "emptyTicks";
-
+initFont();
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
   Serial.begin(9600);
   setupWlan();

@@ -23,22 +23,22 @@ void refreshLED() {
   if ((1000 / textSpeed) + lastRefresh < millis()) {
     //Perform refresh
     lastRefresh = millis();
-
+    insertChar();
     for (int i = 1; i < LED_WIDTH + FONT_WIDTH - 1; i++) {
-      int firstIndexOfCollumn = i * LED_HEIGTH;
+      int firstIndexOfCollumn;
       if (i % 2 == 0) {
+        firstIndexOfCollumn = i * LED_HEIGTH;
         for (int j = 0; j < LED_HEIGTH; j++) {
-          Serial.println(firstIndexOfCollumn - (1 + 2 * j)+"<-"+firstIndexOfCollumn + j);
-          leds[firstIndexOfCollumn - (1 + 2 * j)] = leds[firstIndexOfCollumn + j];
+          leds[firstIndexOfCollumn - (1 + j)] = leds[firstIndexOfCollumn + j];
         }
       } else {
+        firstIndexOfCollumn = (i + 1) * LED_HEIGTH - 1;
         for (int j = 0; j < LED_HEIGTH; j++) {
-          Serial.println(firstIndexOfCollumn - ((LED_HEIGTH * 2 - 1) - 2 * j)+"<-"+firstIndexOfCollumn + j);
-          leds[firstIndexOfCollumn - ((LED_HEIGTH * 2 - 1) - 2 * j)] = leds[firstIndexOfCollumn + j];
+          leds[firstIndexOfCollumn - ((LED_HEIGTH * 2 - 1) - j)] = leds[firstIndexOfCollumn - j];
         }
       }
     }
-    insertChar();
+    
     FastLED.show();
 
   }
@@ -47,7 +47,9 @@ void refreshLED() {
 
 
 void insertChar() {
+  Serial.println(lastChar);
   if (lastChar == 0) {
+
     int startIndex = LED_WIDTH * LED_HEIGTH;
     if (textToDisplay == "") {
       if (emptyTicksRemaining > 0) {
@@ -62,15 +64,15 @@ void insertChar() {
       textToDisplay = text;
       emptyTicksRemaining = emptyTicks;
     }
-    lastChar = FONT_WIDTH;
+    lastChar = FONT_WIDTH+1;
     char nextChar = textToDisplay.charAt(0);
     textToDisplay = textToDisplay.substring(1);
 
     for (int i = 0; i < FONT_WIDTH * LED_HEIGTH; i++) {
-      if (font[1][i]) {
-        leds[startIndex + i] = color;
+      if (font[nextChar][i] == 1) {
+        leds[startIndex + i-16] = color;
       } else {
-        leds[startIndex + i] = CRGB::Black;
+        leds[startIndex + i-16] = CRGB::Black;
       }
     }
 
@@ -79,4 +81,3 @@ void insertChar() {
     lastChar--;
   }
 }
-
