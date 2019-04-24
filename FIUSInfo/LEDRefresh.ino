@@ -1,4 +1,4 @@
-  /*const int LED_WIDTH = 32;
+/*const int LED_WIDTH = 32;
   const int LED_HEIGTH = 8;
   const int FONT_WIDTH = 5;
   const int NUM_LEDS = LED_WIDTH * LED_HEIGTH + FONT_WIDTH * LED_HEIGTH;
@@ -33,9 +33,15 @@ void refreshLED() {
 
 void insertChar() {
   if (lastChar == 0) {
+    int startIndex = LED_WIDTH * LED_HEIGTH;
     if (textToDisplay == "") {
       if (emptyTicksRemaining > 0) {
         emptyTicksRemaining--;
+        for (int i = 0; i < FONT_WIDTH * LED_HEIGTH; i++) {
+
+          leds[startIndex + i] = CRGB::Black;
+
+        }
         return;
       }
       textToDisplay = text;
@@ -44,7 +50,7 @@ void insertChar() {
     lastChar = FONT_WIDTH;
     char nextChar = textToDisplay.charAt(0);
     textToDisplay = textToDisplay.substring(1);
-    int startIndex = LED_WIDTH * LED_HEIGTH;
+    
     for (int i = 0; i < FONT_WIDTH * LED_HEIGTH; i++) {
       if (font[1][i]) {
         leds[startIndex + i] = color;
