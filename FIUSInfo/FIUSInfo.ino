@@ -26,7 +26,7 @@ WiFiServer server(80);
 
 //Status variables
 bool isActive = true;
-String text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+String text = "Wcf";
 CRGB color = CRGB::Green;
 int animationType = 0;
 double textSpeed = 10;
@@ -100,7 +100,7 @@ void refreshPage() {
 
           int endIndex = parsingString.lastIndexOf("HTTP/1.1");
           parsingString = parsingString.substring(startIndex, endIndex);
-          parsingString = parsingString.substring(8, parsingString.length() - 1);
+          parsingString = parsingString.substring(7, parsingString.length() - 1);
           if (parsingString.indexOf("favicon.ico") == -1) {
             httpResponse = reactOnHTTPCall(parsingString);
 
@@ -140,6 +140,7 @@ void refreshPage() {
 }
 
 HttpResponse reactOnHTTPCall(String message) {
+  Serial.println(message);
   String temp = "";
   String output = "HTTP/1.1 200 OK";
   int match = -1;
