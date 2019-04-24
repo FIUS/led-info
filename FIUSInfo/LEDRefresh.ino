@@ -28,10 +28,12 @@ void refreshLED() {
       int firstIndexOfCollumn = i * LED_HEIGTH;
       if (i % 2 == 0) {
         for (int j = 0; j < LED_HEIGTH; j++) {
+          Serial.println(firstIndexOfCollumn - (1 + 2 * j)+"<-"+firstIndexOfCollumn + j);
           leds[firstIndexOfCollumn - (1 + 2 * j)] = leds[firstIndexOfCollumn + j];
         }
       } else {
         for (int j = 0; j < LED_HEIGTH; j++) {
+          Serial.println(firstIndexOfCollumn - ((LED_HEIGTH * 2 - 1) - 2 * j)+"<-"+firstIndexOfCollumn + j);
           leds[firstIndexOfCollumn - ((LED_HEIGTH * 2 - 1) - 2 * j)] = leds[firstIndexOfCollumn + j];
         }
       }
