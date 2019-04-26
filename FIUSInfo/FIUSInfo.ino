@@ -1,6 +1,6 @@
 #include <FastLED.h>
 #include <WiFi.h>
-
+#include "WLAN_CONF.hpp"
 struct HttpResponse {
   String httpCode;
   String html;
@@ -9,7 +9,7 @@ struct HttpResponse {
 const int LED_WIDTH = 64;
 const int LED_HEIGTH = 8;
 const int FONT_WIDTH = 5;
-const int NUM_LEDS = LED_WIDTH * LED_HEIGTH+FONT_WIDTH*LED_HEIGTH+LED_HEIGTH*2;
+const int NUM_LEDS = LED_WIDTH * LED_HEIGTH + FONT_WIDTH * LED_HEIGTH + LED_HEIGTH * 2;
 const int ENDPOINT_COUNT = 9;
 
 //Messing around with DATA_PIN can cause compile problems due library name collision
@@ -17,8 +17,8 @@ const int DATA_PIN = 4;
 
 CRGB leds[NUM_LEDS];
 String endpoints[ENDPOINT_COUNT];
-char ssid[] = "yourNetwork";      // your network SSID (name)
-char pass[] = "secretPassword";   // your network password
+//char ssid[] = "yourNetwork";      // your network SSID (name)
+//char pass[] = "secretPassword";   // your network password
 
 int status = WL_IDLE_STATUS;
 
@@ -26,11 +26,11 @@ WiFiServer server(80);
 
 //Status variables
 bool isActive = true;
-String text = "Wcf";
-CRGB color = CRGB::Green;
+String text = "Samstag 27.4. Spieleabend in der InfoBib 18:00 Uhr";
+CRGB color = CRGB(0, 50, 180);
 int animationType = 0;
-double textSpeed = 10;
-int emptyTicks=20;
+double textSpeed = 40;
+int emptyTicks = 40;
 //End variables
 
 
@@ -44,11 +44,12 @@ void setup() {
   endpoints[6] = "showImageColor";
   endpoints[7] = "get";
   endpoints[8] = "emptyTicks";
-initFont();
+  initFont();
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
   Serial.begin(9600);
+  FastLED.show();
   setupWlan();
-  leds[100] = CRGB::White; FastLED.show();
+  
 }
 
 void loop() {
@@ -58,23 +59,30 @@ void loop() {
 }
 
 void setupWlan() {
-  WiFi.softAP(ssid, "");
-  server.begin();
-  return;
+
   // atparsingStringt to connect to Wifi network:
-  while (status != WL_CONNECTED) {
-    Serial.print("AtparsingStringting to connect to SSID: ");
+  Serial.println(WL_CONNECTED);
+  for (int i = 0; i < 5 && status != WL_CONNECTED; i++) {
+    Serial.print("Trying to connect to SSID: ");
     Serial.println(ssid);
     // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
+
     status = WiFi.begin(ssid, pass);
 
-
-
+    Serial.println(status);
+    Serial.println(WiFi.localIP());
 
     // wait 10 seconds for connection:
     delay(5000);
   }
+
+  if(status !=WL_CONNECTED){
+    WiFi.softAP("shield", "PeterDerWolf");
+  }
+  
   server.begin();
+
+  Serial.println(WiFi.localIP());
 }
 
 void refreshPage() {
@@ -147,7 +155,7 @@ HttpResponse reactOnHTTPCall(String message) {
   String html = "";
   for (int i = 0; i < ENDPOINT_COUNT; i++) {
     if (message.indexOf(endpoints[i]) != -1) {
-      temp = message.substring(endpoints[i].length());
+      temp = message.substring(endpoints[i].length() + 1);
       Serial.println(temp);
       match = i;
     }
@@ -186,8 +194,8 @@ HttpResponse reactOnHTTPCall(String message) {
 
     html = "{\"text\":\"" + text + "\",\"speed\":" + textSpeed + ",\"isActive\":" +
            isActive + ",\"animationType\":" + animationType + ",\"color\":\"" + colorOUT + "\"}";
-  }else if (match == 8) {
-    emptyTicks=temp.toInt();
+  } else if (match == 8) {
+    emptyTicks = temp.toInt();
   }
   if (match == -1) {
     output = "HTTP/1.1 404 NO ENDPOINT";

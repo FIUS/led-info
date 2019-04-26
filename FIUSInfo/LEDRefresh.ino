@@ -47,7 +47,6 @@ void refreshLED() {
 
 
 void insertChar() {
-  Serial.println(lastChar);
   if (lastChar == 0) {
 
     int startIndex = LED_WIDTH * LED_HEIGTH;
