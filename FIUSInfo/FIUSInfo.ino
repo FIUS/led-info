@@ -35,6 +35,7 @@ int emptyTicks = 40;
 
 
 void setup() {
+  /*Defining endpoints*/
   endpoints[0] = "text";
   endpoints[1] = "color";
   endpoints[2] = "speed";
@@ -44,55 +45,60 @@ void setup() {
   endpoints[6] = "showImageColor";
   endpoints[7] = "get";
   endpoints[8] = "emptyTicks";
+
+  /*Loading the font*/
   initFont();
+
+  /*Initializing LEDs and serial port*/
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
   Serial.begin(9600);
   FastLED.show();
+
+  /*Connecting to Wifi or starting accesspoint*/
   setupWlan();
-  
+
 }
 
 void loop() {
-  // listen for incoming clients
   refreshPage();
   refreshLED();
 }
 
 void setupWlan() {
 
-  // atparsingStringt to connect to Wifi network:
-  Serial.println(WL_CONNECTED);
+  /*Trying to connect to wifi*/
   for (int i = 0; i < 5 && status != WL_CONNECTED; i++) {
     Serial.print("Trying to connect to SSID: ");
     Serial.println(ssid);
-    // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
 
     status = WiFi.begin(ssid, pass);
 
     Serial.println(status);
     Serial.println(WiFi.localIP());
 
-    // wait 10 seconds for connection:
+    /*wait 5 seconds for retry*/
     delay(5000);
   }
 
-  if(status !=WL_CONNECTED){
+  /*If could'nt connect to wifi then open acesspoint*/
+  if (status != WL_CONNECTED) {
     WiFi.softAP("shield", "PeterDerWolf");
   }
-  
-  server.begin();
 
-  Serial.println(WiFi.localIP());
+  /*Start webserver*/
+  server.begin();
 }
 
 void refreshPage() {
+
   WiFiClient client = server.available();
   bool check = false;
   HttpResponse resp;
   if (client) {
+    /*Client connected to webserver*/
     String parsingString = "";
 
-    // an http request ends with a blank line
+
     bool currentLineIsBlank = true;
     HttpResponse httpResponse;
     httpResponse.httpCode = "HTTP/1.1 405 METHOD NOT ALLOWED";
@@ -101,9 +107,10 @@ void refreshPage() {
         char c = client.read();
         parsingString += c;
         int startIndex = parsingString.indexOf("POST");
-        //  Serial.print(c);
+
 
         if (parsingString.lastIndexOf("HTTP/1.1") != -1 && !check) {
+          /*We received the whole url*/
           check = true;
 
           int endIndex = parsingString.lastIndexOf("HTTP/1.1");
@@ -115,9 +122,7 @@ void refreshPage() {
           }
 
         }
-        // if you've gotten to the end of the line (received a newline
-        // character) and the line is blank, the http request has ended,
-        // so you can send a reply
+
         if (c == '\n' && currentLineIsBlank) {
           // send a standard http response header
 
@@ -131,17 +136,15 @@ void refreshPage() {
           break;
         }
         if (c == '\n') {
-          // you're starting a new line
           currentLineIsBlank = true;
         } else if (c != '\r') {
-          // you've gotten a character on the current line
           currentLineIsBlank = false;
         }
       }
     }
-    // give the web browser time to receive the data
+    
     delay(1);
-    // close the connection:
+    
     client.stop();
 
   }
@@ -153,6 +156,8 @@ HttpResponse reactOnHTTPCall(String message) {
   String output = "HTTP/1.1 200 OK";
   int match = -1;
   String html = "";
+  
+  /*Finding out what endpoint is called*/
   for (int i = 0; i < ENDPOINT_COUNT; i++) {
     if (message.indexOf(endpoints[i]) != -1) {
       temp = message.substring(endpoints[i].length() + 1);
@@ -161,6 +166,7 @@ HttpResponse reactOnHTTPCall(String message) {
     }
   }
 
+  /*Parsing the endpoint info*/
   if (match == 0) {
     text = temp;
   } else if (match == 1) {
@@ -203,7 +209,7 @@ HttpResponse reactOnHTTPCall(String message) {
   HttpResponse resp;
   resp.httpCode = output;
   resp.html = html;
-  Serial.println(text);
+  
   return resp;
 
 }

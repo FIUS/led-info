@@ -1,6 +1,5 @@
+/*The font file*/
 
-//void setup(){}
-//void loop(){}
 char font[130][6 * 8];
 
 void initFont() {

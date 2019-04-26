@@ -1,18 +1,4 @@
 
-/*const int LED_WIDTH = 32;
-  const int LED_HEIGTH = 8;
-  const int FONT_WIDTH = 5;
-  const int NUM_LEDS = LED_WIDTH * LED_HEIGTH + FONT_WIDTH * LED_HEIGTH;
-  const int ENDPOINT_COUNT = 8;
-
-  bool isActive = true;
-  String text = "";
-  //CRGB color = CRGB::White;
-  int animationType = 0;
-  double textSpeed = 0;
-  int leds[NUM_LEDS];*/
-//----------------------------------------
-
 String textToDisplay;
 long lastRefresh;
 int lastChar;
@@ -21,9 +7,13 @@ int emptyTicksRemaining;
 void refreshLED() {
 
   if ((1000 / textSpeed) + lastRefresh < millis()) {
-    //Perform refresh
+    /*Perform refresh*/
     lastRefresh = millis();
+
+    /*Insert new char if needed*/
     insertChar();
+
+    /*Shift the whole text one collumn to the left*/
     for (int i = 1; i < LED_WIDTH + FONT_WIDTH - 1; i++) {
       int firstIndexOfCollumn;
       if (i % 2 == 0) {
@@ -38,7 +28,8 @@ void refreshLED() {
         }
       }
     }
-    
+
+    /*Display changes*/
     FastLED.show();
 
   }
@@ -51,7 +42,9 @@ void insertChar() {
 
     int startIndex = LED_WIDTH * LED_HEIGTH;
     if (textToDisplay == "") {
+
       if (emptyTicksRemaining > 0) {
+        /*The text is completly displayed, but empty space is inserted*/
         emptyTicksRemaining--;
         for (int i = 0; i < FONT_WIDTH * LED_HEIGTH; i++) {
 
@@ -60,18 +53,20 @@ void insertChar() {
         }
         return;
       }
+      /*The text is completly displayed, display it again*/
       textToDisplay = text;
       emptyTicksRemaining = emptyTicks;
     }
-    lastChar = FONT_WIDTH+1;
+    lastChar = FONT_WIDTH + 1;
     char nextChar = textToDisplay.charAt(0);
     textToDisplay = textToDisplay.substring(1);
 
+    /*Spawn new character*/
     for (int i = 0; i < FONT_WIDTH * LED_HEIGTH; i++) {
       if (font[nextChar][i] == 1) {
-        leds[startIndex + i-16] = color;
+        leds[startIndex + i - 16] = color;
       } else {
-        leds[startIndex + i-16] = CRGB::Black;
+        leds[startIndex + i - 16] = CRGB::Black;
       }
     }
 
