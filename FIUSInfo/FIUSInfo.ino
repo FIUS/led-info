@@ -17,8 +17,8 @@ const int DATA_PIN = 4;
 
 CRGB leds[NUM_LEDS];
 String endpoints[ENDPOINT_COUNT];
-//char ssid[] = "yourNetwork";      // your network SSID (name)
-//char pass[] = "secretPassword";   // your network password
+char font[130][6 * 8];
+
 
 int status = WL_IDLE_STATUS;
 
@@ -26,7 +26,7 @@ WiFiServer server(80);
 
 //Status variables
 bool isActive = true;
-String text = "Samstag 27.4. Spieleabend in der InfoBib 18:00 Uhr";
+String text = "Fachgruppe Informatik";
 CRGB color = CRGB(0, 50, 180);
 int animationType = 0;
 double textSpeed = 40;
@@ -64,6 +64,18 @@ void loop() {
   refreshLED();
 }
 
+void setProgress(int character, int startIndex, CRGB color) {
+
+  for (int j = 0; j < FONT_WIDTH * LED_HEIGTH; j++) {
+    if (font[character][j] == 1) {
+      leds[startIndex + j] = color;
+    } else {
+      leds[startIndex + j] = CRGB::Black;
+    }
+  }
+  FastLED.show();
+}
+
 void setupWlan() {
 
   /*Trying to connect to wifi*/
@@ -76,17 +88,32 @@ void setupWlan() {
     Serial.println(status);
     Serial.println(WiFi.localIP());
 
+    int startindex = (FONT_WIDTH * LED_HEIGTH+LED_HEIGTH) * i;
+    setProgress('o', startindex, CRGB::Yellow);
+
     /*wait 5 seconds for retry*/
     delay(5000);
   }
 
+  /*Clear leds*/
+  for (int j = 0; j < NUM_LEDS; j++) {
+    leds[j] = CRGB::Black;
+  }
+  FastLED.show();
+
   /*If could'nt connect to wifi then open acesspoint*/
   if (status != WL_CONNECTED) {
     WiFi.softAP("shield", "PeterDerWolf");
+
+    setProgress('A', 0, CRGB::Green);
+  } else {
+
+    setProgress('W', 0, CRGB::Green);
   }
 
   /*Start webserver*/
   server.begin();
+  delay(5000);
 }
 
 void refreshPage() {
@@ -142,9 +169,9 @@ void refreshPage() {
         }
       }
     }
-    
+
     delay(1);
-    
+
     client.stop();
 
   }
@@ -156,7 +183,7 @@ HttpResponse reactOnHTTPCall(String message) {
   String output = "HTTP/1.1 200 OK";
   int match = -1;
   String html = "";
-  
+
   /*Finding out what endpoint is called*/
   for (int i = 0; i < ENDPOINT_COUNT; i++) {
     if (message.indexOf(endpoints[i]) != -1) {
@@ -165,6 +192,10 @@ HttpResponse reactOnHTTPCall(String message) {
       match = i;
     }
   }
+
+  /*Replacing http substituted character*/
+  temp.replace("%20", " ");
+
 
   /*Parsing the endpoint info*/
   if (match == 0) {
@@ -209,7 +240,7 @@ HttpResponse reactOnHTTPCall(String message) {
   HttpResponse resp;
   resp.httpCode = output;
   resp.html = html;
-  
+
   return resp;
 
 }
