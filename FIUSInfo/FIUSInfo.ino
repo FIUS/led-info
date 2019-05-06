@@ -1,6 +1,8 @@
 #include <FastLED.h>
 #include <WiFi.h>
 #include "WLAN_CONF.hpp"
+String debugInfo;
+
 struct HttpResponse {
   String httpCode;
   String html;
@@ -10,7 +12,7 @@ const int LED_WIDTH = 64;
 const int LED_HEIGTH = 8;
 const int FONT_WIDTH = 5;
 const int NUM_LEDS = LED_WIDTH * LED_HEIGTH + FONT_WIDTH * LED_HEIGTH + LED_HEIGTH * 2;
-const int ENDPOINT_COUNT = 9;
+const int ENDPOINT_COUNT = 10;
 
 //Messing around with DATA_PIN can cause compile problems due library name collision
 const int DATA_PIN = 4;
@@ -45,6 +47,7 @@ void setup() {
   endpoints[6] = "showImageColor";
   endpoints[7] = "get";
   endpoints[8] = "emptyTicks";
+  endpoints[9] = "getDebug";
 
   /*Loading the font*/
   initFont();
@@ -88,7 +91,7 @@ void setupWlan() {
     Serial.println(status);
     Serial.println(WiFi.localIP());
 
-    int startindex = (FONT_WIDTH * LED_HEIGTH+LED_HEIGTH) * i;
+    int startindex = (FONT_WIDTH * LED_HEIGTH + LED_HEIGTH) * i;
     setProgress('o', startindex, CRGB::Yellow);
 
     /*wait 5 seconds for retry*/
@@ -178,24 +181,24 @@ void refreshPage() {
 }
 
 HttpResponse reactOnHTTPCall(String message) {
-  Serial.println(message);
+  //debugInfo += message + "\n";
   String temp = "";
   String output = "HTTP/1.1 200 OK";
   int match = -1;
   String html = "";
-
+  //debugInfo += message + "\n";
   /*Finding out what endpoint is called*/
   for (int i = 0; i < ENDPOINT_COUNT; i++) {
-    if (message.indexOf(endpoints[i]) != -1) {
+    if (message.startsWith(endpoints[i])) {
       temp = message.substring(endpoints[i].length() + 1);
       Serial.println(temp);
       match = i;
     }
   }
-
+  //debugInfo += temp + "\n";
   /*Replacing http substituted character*/
   temp.replace("%20", " ");
-
+  //debugInfo += temp + "\n";
 
   /*Parsing the endpoint info*/
   if (match == 0) {
@@ -233,6 +236,8 @@ HttpResponse reactOnHTTPCall(String message) {
            isActive + ",\"animationType\":" + animationType + ",\"color\":\"" + colorOUT + "\"}";
   } else if (match == 8) {
     emptyTicks = temp.toInt();
+  }else if (match == 9) {
+    html = debugInfo;
   }
   if (match == -1) {
     output = "HTTP/1.1 404 NO ENDPOINT";
