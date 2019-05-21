@@ -345,8 +345,12 @@ public class GUI extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         StringBuilder builder = new StringBuilder();
-
-        int ascii = jTextField1.getText().charAt(0);
+        int ascii = 0;
+        if (jTextField1.getText().length() > 1) {
+            ascii = Integer.parseInt(jTextField1.getText().substring(1));
+        } else {
+            ascii = jTextField1.getText().charAt(0);
+        }
         int i = 0;
         for (JToggleButton jtb : buttons) {
             builder.append("font[");
@@ -359,7 +363,7 @@ public class GUI extends javax.swing.JFrame {
             } else {
                 builder.append("0");
             }
-            if(i<buttons.length-1){
+            if (i < buttons.length - 1) {
                 builder.append(";");
             }
             i++;

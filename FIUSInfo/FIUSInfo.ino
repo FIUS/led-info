@@ -19,7 +19,7 @@ const int DATA_PIN = 4;
 
 CRGB leds[NUM_LEDS];
 String endpoints[ENDPOINT_COUNT];
-char font[130][6 * 8];
+char font[300][6 * 8];
 
 
 int status = WL_IDLE_STATUS;
@@ -37,6 +37,7 @@ int emptyTicks = 40;
 
 
 void setup() {
+
   /*Defining endpoints*/
   endpoints[0] = "text";
   endpoints[1] = "color";
@@ -202,6 +203,24 @@ HttpResponse reactOnHTTPCall(String message) {
 
   /*Parsing the endpoint info*/
   if (match == 0) {
+    temp.replace("%E4","/ae");
+    temp.replace("%F6","/oe");
+    temp.replace("%FC","/ue");
+
+    temp.replace("%C4","/AE");
+    temp.replace("%D6","/OE");
+    temp.replace("%DC","/UE");
+
+    temp.replace("%C3%A4","/ae");
+    temp.replace("%C3%B6","/oe");
+    temp.replace("%C3%BC","/ue");
+
+    temp.replace("%C3%84","/AE");
+    temp.replace("%C3%96","/OE");
+    temp.replace("%C3%9C","/UE");
+    
+    temp.replace("%27","'");
+    Serial.println(temp);
     text = temp;
   } else if (match == 1) {
     int r = temp.substring(0, 3).toInt();
@@ -233,10 +252,10 @@ HttpResponse reactOnHTTPCall(String message) {
     String colorOUT = "RGB(" + String(r) + "," + String(g) + "," + String(b) + ")";
 
     html = "{\"text\":\"" + text + "\",\"speed\":" + textSpeed + ",\"isActive\":" +
-           isActive + ",\"animationType\":" + animationType + ",\"color\":\"" + colorOUT + "\"}";
+           isActive + ",\"animationType\":" + animationType + ",\"color\":\"" + colorOUT + "\",\"emptyTicks\":\"" + emptyTicks + "\"}";
   } else if (match == 8) {
     emptyTicks = temp.toInt();
-  }else if (match == 9) {
+  } else if (match == 9) {
     html = debugInfo;
   }
   if (match == -1) {

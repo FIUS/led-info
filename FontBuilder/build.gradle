@@ -1,7 +1,11 @@
-apply plugin: 'java'
-apply plugin: 'jacoco'
-apply plugin: 'application'
 
+plugins {
+    // Apply the java plugin to add support for Java
+    id 'java'
+
+    // Apply the application plugin to add support for building an application
+    id 'application'
+}
 
 mainClassName = 'FontBuilder.Main'
 
@@ -11,4 +15,16 @@ repositories {
 
 dependencies {
     testCompile 'junit:junit:4.12'
+}
+
+mainClassName = 'FontBuilder.Main'
+
+jar {
+  manifest { 
+    attributes "Main-Class": "FontBuilder.Main"
+  }  
+
+  from {
+    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+  }
 }
