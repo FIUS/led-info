@@ -62,10 +62,12 @@ void insertChar() {
 
     for (int i = 0; i < ALIAS_COUNT; i++) {
       if (textToDisplay.startsWith(alias[i])) {
-        textToDisplay = textToDisplay.substring(textToDisplay.length());
+        textToDisplay = textToDisplay.substring(alias[i].length());
         nextChar = 250 + i;
+        break;
       }
     }
+
     if (nextChar == 0) {
       if (textToDisplay.startsWith("/ae")) {
         textToDisplay = textToDisplay.substring(2);
@@ -91,7 +93,8 @@ void insertChar() {
       textToDisplay = textToDisplay.substring(1);
     }
 
-
+    Serial.println(textToDisplay);
+    Serial.println(nextChar);
     /*Spawn new character*/
     for (int i = 0; i < FONT_WIDTH * LED_HEIGTH; i++) {
       if (font[nextChar][i] > 0) {
