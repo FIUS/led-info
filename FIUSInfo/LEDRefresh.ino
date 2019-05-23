@@ -59,33 +59,38 @@ void insertChar() {
     }
     lastChar = FONT_WIDTH + 1;
     int nextChar = 0;
-    if (textToDisplay.startsWith("/smile")) {
-      textToDisplay = textToDisplay.substring(5);
-      nextChar = 250;
-    } else if (textToDisplay.startsWith("/ae")) {
-      textToDisplay = textToDisplay.substring(2);
-      nextChar = 228;
-    } else if (textToDisplay.startsWith("/oe")) {
-      textToDisplay = textToDisplay.substring(2);
-      nextChar = 246;
-    } else if (textToDisplay.startsWith("/ue")) {
-      textToDisplay = textToDisplay.substring(2);
-      nextChar = 252;
-    } else if (textToDisplay.startsWith("/AE")) {
-      textToDisplay = textToDisplay.substring(2);
-      nextChar = 196;
-    } else if (textToDisplay.startsWith("/OE")) {
-      textToDisplay = textToDisplay.substring(2);
-      nextChar = 214;
-    } else if (textToDisplay.startsWith("/UE")) {
-      textToDisplay = textToDisplay.substring(2);
-      nextChar = 220;
-    }  else {
-      nextChar = textToDisplay.charAt(0);
+
+    for (int i = 0; i < ALIAS_COUNT; i++) {
+      if (textToDisplay.startsWith(alias[i])) {
+        textToDisplay = textToDisplay.substring(textToDisplay.length());
+        nextChar = 250 + i;
+      }
+    }
+    if (nextChar == 0) {
+      if (textToDisplay.startsWith("/ae")) {
+        textToDisplay = textToDisplay.substring(2);
+        nextChar = 228;
+      } else if (textToDisplay.startsWith("/oe")) {
+        textToDisplay = textToDisplay.substring(2);
+        nextChar = 246;
+      } else if (textToDisplay.startsWith("/ue")) {
+        textToDisplay = textToDisplay.substring(2);
+        nextChar = 252;
+      } else if (textToDisplay.startsWith("/AE")) {
+        textToDisplay = textToDisplay.substring(2);
+        nextChar = 196;
+      } else if (textToDisplay.startsWith("/OE")) {
+        textToDisplay = textToDisplay.substring(2);
+        nextChar = 214;
+      } else if (textToDisplay.startsWith("/UE")) {
+        textToDisplay = textToDisplay.substring(2);
+        nextChar = 220;
+      }  else {
+        nextChar = textToDisplay.charAt(0);
+      }
+      textToDisplay = textToDisplay.substring(1);
     }
 
-
-    textToDisplay = textToDisplay.substring(1);
 
     /*Spawn new character*/
     for (int i = 0; i < FONT_WIDTH * LED_HEIGTH; i++) {

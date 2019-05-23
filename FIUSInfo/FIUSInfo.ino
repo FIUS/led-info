@@ -13,13 +13,15 @@ const int LED_HEIGTH = 8;
 const int FONT_WIDTH = 5;
 const int NUM_LEDS = LED_WIDTH * LED_HEIGTH + FONT_WIDTH * LED_HEIGTH + LED_HEIGTH * 2;
 const int ENDPOINT_COUNT = 10;
-
+const int ALIAS_COUNT=2;
 //Messing around with DATA_PIN can cause compile problems due library name collision
 const int DATA_PIN = 4;
 
 CRGB leds[NUM_LEDS];
 String endpoints[ENDPOINT_COUNT];
+const String alias[]={"/smile","/fius"};
 char font[300][6 * 8];
+
 
 
 int status = WL_IDLE_STATUS;
